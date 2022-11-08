@@ -64,7 +64,7 @@ class RecyclerActivity : AppCompatActivity() {
     }
 
     private fun configAdapter() : PersonAdapter {
-        val personAdapter = PersonAdapter(this@RecyclerActivity, object : PersonAdapter.PersonActions {
+        val personAdapter = PersonAdapter(object : PersonAdapter.PersonActions {
             override fun onDeletePersonAdapter(position: Int) {
                 onDeletePerson(position)
             }
@@ -128,7 +128,7 @@ class RecyclerActivity : AppCompatActivity() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(this@RecyclerActivity, R.style.my_dialog)
         val inflater: LayoutInflater = layoutInflater
         val view: View = inflater.inflate(R.layout.insert_data_person, null)
-        val bindingDialog = InsertDataPersonBinding.bind(view);
+        val bindingDialog = InsertDataPersonBinding.bind(view)
         builder.setView(view)
 
         val dialog: AlertDialog = builder.create()
