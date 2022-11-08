@@ -29,7 +29,6 @@ import timber.log.Timber
 class RecyclerActivity : AppCompatActivity() {
 
     private lateinit var binding: RecyclerMainBinding
-    private lateinit var personAdapter: PersonAdapter
 
     private val viewModel: RecyclerViewModel by viewModels {
         RecyclerViewModelFactory(
@@ -94,10 +93,10 @@ class RecyclerActivity : AppCompatActivity() {
                                 LinearLayoutManager.HORIZONTAL
                             )
                         )
-                        personAdapter = configAdapter()
-                        rvPersons.adapter = personAdapter
+                        val adapter = configAdapter()
+                        rvPersons.adapter = adapter
                         rvPersons.layoutManager = LinearLayoutManager(this@RecyclerActivity)
-                        personAdapter.submitList(state.listPerson)
+                        adapter.submitList(state.listPerson)
                     }
                 }
             }
