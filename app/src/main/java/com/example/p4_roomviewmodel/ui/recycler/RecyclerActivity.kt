@@ -1,4 +1,4 @@
-package com.example.p4_roomviewmodel.ui
+package com.example.p4_roomviewmodel.ui.recycler
 
 import android.content.Intent
 import android.graphics.Color
@@ -16,10 +16,13 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
 import com.example.p4_roomviewmodel.R
+import com.example.p4_roomviewmodel.data.Repository
+import com.example.p4_roomviewmodel.data.database.RoomPersonDB
 import com.example.p4_roomviewmodel.databinding.InsertDataPersonBinding
 import com.example.p4_roomviewmodel.databinding.RecyclerMainBinding
 import com.example.p4_roomviewmodel.domain.model.Person
 import com.example.p4_roomviewmodel.domain.usecases.*
+import com.example.p4_roomviewmodel.ui.common.Constants
 import com.example.p4_roomviewmodel.ui.detailsPerson.DetailsPersonActivity
 import com.example.p4_roomviewmodel.utils.StringProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -29,14 +32,14 @@ import timber.log.Timber
 class RecyclerActivity : AppCompatActivity() {
 
     private lateinit var binding: RecyclerMainBinding
+    private var countId: Int = 0
 
     private val viewModel: RecyclerViewModel by viewModels {
         RecyclerViewModelFactory(
             StringProvider(this),
-            UsecaseGetAllPersons(),
-            UsecaseGetPerson(),
-            UsecaseDeletePerson(),
-            UsecaseAddPerson(),
+            UsecaseGetAllPersons(Repository(RoomPersonDB.getDatabase(this).personDao())),
+            UsecaseDeletePerson(Repository(RoomPersonDB.getDatabase(this).personDao())),
+            UsecaseAddPerson(Repository(RoomPersonDB.getDatabase(this).personDao())),
             UsecaseValidatedPerson(),
         )
     }
@@ -64,11 +67,11 @@ class RecyclerActivity : AppCompatActivity() {
 
     private fun configAdapter() : PersonAdapter {
         val personAdapter = PersonAdapter(object : PersonAdapter.PersonActions {
-            override fun onDeletePersonAdapter(position: Int) {
-                onDeletePerson(position)
+            override fun onDeletePersonAdapter(person: Person) {
+                onDeletePerson(person)
             }
-            override fun onShowPersonDetailsAdapter(position: Int) {
-                onShowPersonDetails(position)
+            override fun onShowPersonDetailsAdapter(id: Int) {
+                onShowPersonDetails(id)
             }
         })
         return personAdapter
@@ -79,8 +82,10 @@ class RecyclerActivity : AppCompatActivity() {
 
             if (state.message != null){
                 Toast.makeText(this@RecyclerActivity, state.message, Toast.LENGTH_SHORT).show()
-                viewModel.errorMostrado()
-                Timber.tag("::TIMBER").i(state.message)
+                viewModel.handleEvent(
+                    RecyclerEvent.ErrorShown
+                )
+                Timber.tag(Constants.TIMBER.string).i(state.message)
             } else {
                 with(binding) {
 
@@ -113,7 +118,9 @@ class RecyclerActivity : AppCompatActivity() {
     }
 
     private fun showList() {
-        viewModel.showList()
+        viewModel.handleEvent(
+            RecyclerEvent.ShowList
+        )
     }
 
 
@@ -139,31 +146,37 @@ class RecyclerActivity : AppCompatActivity() {
 
         buttonAdd.setOnClickListener() {
             with(bindingDialog) {
+                val id = countId
                 val name = etName.editText?.text.toString()
                 val password = etPassword.editText?.text.toString()
                 val phone = etPhone.editText?.text.toString()
-                val p = Person(name, password, phone.toInt())
-                viewModel.addPerson(p)
+                val p = Person(id, name, password, phone.toInt())
+                viewModel.handleEvent(
+                    RecyclerEvent.AddPerson(p)
+                )
+                countId++
                 dialog.dismiss()
             }
         }
     }
 
-    private fun onShowPersonDetails(position: Int) {
+    private fun onShowPersonDetails(id: Int) {
         val intent =  Intent(this@RecyclerActivity, DetailsPersonActivity::class.java)
-        intent.putExtra("positionPerson", position)
+        intent.putExtra(Constants.ID_PERSON.string, id)
         startActivity(intent)
     }
 
-    private fun onDeletePerson(position: Int) {
+    private fun onDeletePerson(person: Person) {
         val dialog = MaterialAlertDialogBuilder(this)
-            .setTitle("CONFIRMATION")
-            .setMessage("Are you sure to delete this person?")
-            .setNegativeButton("NO") { view, _ ->
+            .setTitle(Constants.CONFIRMATION.string)
+            .setMessage(Constants.DELETE_PERSON_QSTION.string)
+            .setNegativeButton(Constants.NO.string) { view, _ ->
                 view.dismiss()
             }
-            .setPositiveButton("YES") { view, _ ->
-                viewModel.deletePerson(position)
+            .setPositiveButton(Constants.YES.string) { view, _ ->
+                viewModel.handleEvent(
+                    RecyclerEvent.DeletePerson(person)
+                )
                 //binding.rvPersons.adapter?.notifyItemRemoved(position)
                 view.dismiss()
             }
@@ -176,7 +189,7 @@ class RecyclerActivity : AppCompatActivity() {
     private fun chargeImage() {
         //este metodo no funsiona
         //binding.imageView.load(assets.open("pepinilloYcacahuete.jpg"))
-        binding.imageView.load(Uri.parse("file:///android_asset/pepinilloYcacahuete.jpg"))
+        binding.imageView.load(Uri.parse(Constants.URI_PNILLO_CACAHUETE.string))
     }
 
     /** Esto no me funciona */

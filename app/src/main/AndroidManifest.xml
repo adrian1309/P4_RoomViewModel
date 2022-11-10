@@ -23,7 +23,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".ui.RecyclerActivity"
+            android:name=".ui.recycler.RecyclerActivity"
             android:exported="false" >
 
             <meta-data

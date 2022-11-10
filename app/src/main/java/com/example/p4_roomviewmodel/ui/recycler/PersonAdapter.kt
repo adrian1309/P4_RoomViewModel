@@ -1,6 +1,5 @@
-package com.example.p4_roomviewmodel.ui
+package com.example.p4_roomviewmodel.ui.recycler
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,8 +17,8 @@ class PersonAdapter(
 
 
     interface PersonActions {
-        fun onDeletePersonAdapter(position: Int)
-        fun onShowPersonDetailsAdapter(position: Int)
+        fun onDeletePersonAdapter(person: Person)
+        fun onShowPersonDetailsAdapter(id: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewholder {
@@ -40,15 +39,19 @@ class PersonAdapter(
         private val binding = ItemPersonBinding.bind(itemView)
 
 
-        fun bind(person: Person) = with(binding) {
-            tvNamePersonItem.text = person.name
-            tvPhonePersonItem.text = person.phone.toString()
+        fun bind(p: Person) = with(binding) {
+            tvNamePersonItem.text = p.name
+            tvPhonePersonItem.text = p.phone.toString()
+
+            val person = currentList[absoluteAdapterPosition]
+            val id = currentList[absoluteAdapterPosition].id
+
             ivPersonDelete.setOnClickListener {
                 //la posicion la sabe el propio viewholder
-                actions.onDeletePersonAdapter(absoluteAdapterPosition)
+                actions.onDeletePersonAdapter(person)
             }
             ivPersonSee.setOnClickListener {
-                actions.onShowPersonDetailsAdapter(absoluteAdapterPosition)
+                actions.onShowPersonDetailsAdapter(id)
             }
 
         }

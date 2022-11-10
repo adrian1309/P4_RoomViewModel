@@ -1,38 +1,19 @@
 package com.example.p4_roomviewmodel.data
 
+import com.example.p4_roomviewmodel.data.database.dao.PersonDAO
+import com.example.p4_roomviewmodel.data.database.modelEntity.PersonEntity
 import com.example.p4_roomviewmodel.domain.model.Person
 
-object Repository {
-    private val persons = mutableListOf<Person>()
+class Repository (private val personDao : PersonDAO) {
 
-    init {
-        persons.add(Person("Juan", "P8EIDN", 653788991))
-        persons.add(Person("Maria", "dkfhi76", 683984578))
-        persons.add(Person("Roberto", "H80dgf", 621928291))
-        persons.add(Person("Miguel", "hsTI536", 642948579))
-        persons.add(Person("Daniel", "HDklg674rt", 600432987))
-        persons.add(Person("Lucia", "cdLd4938", 672379207))
-        persons.add(Person("Marta", "nnfd498grR", 654789112))
-    }
+    suspend fun getAllPerson() = personDao.getAllPersonEntity()
 
-    fun addPerson(person: Person) =
-        persons.add(person)
+    suspend fun getPerson(id: Int) = personDao.getPersonEntity(id)
 
+    suspend fun deletePerson(p: PersonEntity) = personDao.deletePersonEntity(p)
 
-    fun getPersons(): List<Person> {
-        return persons
-    }
+    suspend fun addPerson(p: PersonEntity) = personDao.addPersonEntity(p)
 
-    fun deletePerson(position: Int) =
-        persons.remove(persons[position])
-
-    fun getPerson(positionPerson: Int): Person {
-        return persons[positionPerson]
-    }
-
-    fun updatePerson(personLast: Person, personNew: Person) {
-        persons.remove(personLast)
-        persons.add(personNew)
-    }
+    suspend fun updatePerson(p: PersonEntity) = personDao.updatePersonEntity(p)
 
 }
